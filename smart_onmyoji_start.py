@@ -127,13 +127,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.show_handle_title.hide()
         if self.connect_mod_value == 'Windows程序窗体':
             self.rd_btn_windows_mod.setChecked(True)
-        else:
-            self.rd_btn_android_adb.setChecked(True)
-            self.btn_select_handle.setEnabled(False)
-            self.show_handle_title.setEnabled(False)
-            self.show_handle_num.setEnabled(False)
-            self.process_num_one.setEnabled(False)
-            self.process_num_more.setEnabled(False)
 
         if self.times_mode == "按分钟计算":
             self.run_by_min.setChecked(True)
@@ -325,7 +318,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.process_num_one.setEnabled(bool_val)
             self.process_num_more.setEnabled(bool_val)
         self.rd_btn_windows_mod.setEnabled(bool_val)
-        self.rd_btn_android_adb.setEnabled(bool_val)
         self.show_target_path.setEnabled(bool_val)
         self.select_targetpic_path_btn.setEnabled(bool_val)
         self.interval_seconds.setEnabled(bool_val)

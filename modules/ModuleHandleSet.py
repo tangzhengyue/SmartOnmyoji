@@ -3,13 +3,10 @@
 # @Version : Python3.7.6
 # @MIT License Copyright (c) 2022 ACE
 
-import os
-import re
 import winsound
 from os import system
 from re import search
 from os.path import abspath, dirname
-from subprocess import Popen, PIPE
 from time import sleep
 
 from win32api import OpenProcess
@@ -137,54 +134,6 @@ class HandleSet:
             priority_name = "最高"
         print(f"<br>已设置进程 [{handle_title} {self.handle_num}] 的优先级为 [{priority_name}] ")
         print("<br>-----------------------------")
-
-    @staticmethod
-    def deal_cmd(cmd):
-        """执行cmd命令"""
-        pi = Popen(cmd, shell=True, stdout=PIPE)
-        return pi.stdout.read()
-
-    @staticmethod
-    def get_screen_size(device_id):
-        """获取手机屏幕大小"""
-        command = abspath(dirname(__file__)) + rf'\adb.exe -s {device_id} shell wm size'
-        result_str = os.popen(command).read()
-        size_str = re.findall(r'\d+x\d+', result_str)
-        size = size_str[0].split("x")
-        return size
-
-    @staticmethod
-    def adb_device_status():
-        """检测设备是否在线，如果在线返回True和在线设备列表，不在线则返回False和异常信息"""
-        try:
-            # HandleSet.deal_cmd(abspath(dirname(__file__)) + r'\adb.exe kill-server')
-            command = abspath(dirname(__file__)) + r'\adb.exe devices'  # adb放在modules目录下，不用那么麻烦安装adb命令了
-            # result = HandleSet.deal_cmd('adb devices')
-            # command = abspath(dirname(__file__)) + r'\adb.exe connect 127.0.0.1:7555'
-            result = HandleSet.deal_cmd(command)
-            result = result.decode("utf-8")
-            if result.startswith('List of devices attached'):
-                # 查看连接设备
-                result = result.strip().splitlines()
-                # 查看连接设备数量
-                device_size = len(result)
-                if device_size > 1:
-                    device_list = []
-                    for i in range(1, device_size):
-                        device_detail = result[1].split('\t')
-                        if device_detail[1] == 'device':
-                            device_list.append(device_detail[0])
-                        elif device_detail[1] == 'offline':
-                            print(device_detail[0])
-                            return False, '<br>连接出现异常，设备无响应'
-                        elif device_detail[1] == 'unknown':
-                            print(device_detail[0])
-                            return False, '<br>设备不在线，请重新连接，或打开安卓调试模式'
-                    return True, device_list
-                else:
-                    return False, "<br>设备不在线，请重新连接，或打开安卓调试模式"
-        except:
-            return False, '<br>连接出现异常，或设备无响应'
 
     @staticmethod
     def get_active_window(loop_times=5):

@@ -3,7 +3,6 @@
 # @Version : Python3.7.6
 # @MIT License Copyright (c) 2022 ACE
 
-from os.path import abspath, dirname
 from time import sleep
 import random
 import win32com.client
@@ -25,7 +24,7 @@ class DoClick:
         self.pos = pos
         rc = ReadConfigFile()
         other_setting = rc.read_config_other_setting()
-        self.ex_click_probability = float(other_setting[10])  # 从配置文件读取是否有设置额外偏移点击概率
+        self.ex_click_probability = float(other_setting[8])  # 从配置文件读取是否有设置额外偏移点击概率
 
     def windows_click(self):
         """
@@ -64,40 +63,6 @@ class DoClick:
                     sleep((random.randint(5, 15)) / 100)  # 点击弹起改为随机
                     SendMessage(self.handle_num, WM_LBUTTONUP, 0, long_position)  # 模拟鼠标弹起
                     print(f"<br>点击偏移坐标: [ {ex_pos[0]}, {ex_pos[1]} ]")
-                    click_pos_list.append([ex_pos[0], ex_pos[1]])
-
-            return True, click_pos_list
-
-    def adb_click(self, device_id):
-        """数据线连手机点击"""
-        if self.pos is not None:
-            click_pos_list = []
-            pos = self.pos
-            screen_size = HandleSet.get_screen_size(device_id)
-            height = int(screen_size[0])
-            width = int(screen_size[1])
-
-            px, py = self.get_p_pos(self.click_mod, width, height, pos)
-
-            cx = int(px + pos[0])
-            cy = int(py + pos[1])
-
-            # 使用modules下的adb工具执行adb命令
-            command = abspath(dirname(__file__)) + rf'\adb.exe -s {device_id} shell input tap {cx} {cy}'
-            HandleSet.deal_cmd(command)
-            # system(command)
-            print(f"<br>点击设备 [ {device_id} ] 坐标: [ {cx} , {cy} ]")
-            click_pos_list.append([cx, cy])
-
-            # 模拟真实点击、混淆点击热区
-            if self.ex_click_probability > 0:  # 如果配置文件设置了额外随机点击
-                ex_pos = self.get_ex_click_pos(self.ex_click_probability, width, height, [cx, cy], px, py)
-                if ex_pos is not None:
-                    sleep((random.randint(5, 15)) / 100)  # 点击弹起改为随机
-                    command = abspath(
-                        dirname(__file__)) + rf'\adb.exe -s {device_id} shell input tap {ex_pos[0]} {ex_pos[1]}'
-                    HandleSet.deal_cmd(command)
-                    print(f"<br>点击设备 [ {device_id} ] 额外偏移坐标: [ {ex_pos[0]} {ex_pos[1]} ]")
                     click_pos_list.append([ex_pos[0], ex_pos[1]])
 
             return True, click_pos_list

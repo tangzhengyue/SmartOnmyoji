@@ -4,8 +4,6 @@
 # @MIT License Copyright (c) 2022 ACE
 
 import time
-from os.path import abspath, dirname
-from subprocess import Popen, PIPE
 
 import numpy as np
 import win32com.client
@@ -88,21 +86,10 @@ class GetScreenCapture:
 
         return im_opencv
 
-    @staticmethod
-    def adb_screen(device_id):
-        """安卓手机adb截图"""
-        commend = Popen(abspath(dirname(__file__)) + f'\\adb.exe -s {device_id} shell screencap -p', stdin=PIPE,
-                        stdout=PIPE, shell=True)
-        img_bytes = commend.stdout.read().replace(b'\r\n', b'\n')  # 传输
-        scr_img = cv2.imdecode(frombuffer(img_bytes, uint8), cv2.IMREAD_COLOR)  # 转格式
-        scr_img = cv2.cvtColor(scr_img, cv2.COLOR_BGRA2GRAY)
-        print("<br>截图成功！")
-        return scr_img
-
 
 def get_screen_scale_rate():
     """获取缩放比例"""
     set_config = ReadConfigFile()  # 读取配置文件
     other_setting = set_config.read_config_other_setting()
-    screen_scale_rate = float(other_setting[11])
+    screen_scale_rate = float(other_setting[9])
     return screen_scale_rate

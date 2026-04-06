@@ -127,11 +127,7 @@ class MatchingThread(QtCore.QThread):
         interval_seconds = float(self.ui_info.interval_seconds.value())  # 间隔时间，下限
         interval_seconds_max = float(self.ui_info.interval_seconds_max.value())  # 间隔时间，上限
         click_deviation = int(self.ui_info.click_deviation.value())  # 点击偏移范围
-        connect_mod = None  # 连接方式，电脑还是安卓手机
-        if self.ui_info.rd_btn_windows_mod.isChecked():
-            connect_mod = self.ui_info.rd_btn_windows_mod.text()
-        elif self.ui_info.rd_btn_android_adb.isChecked():
-            connect_mod = self.ui_info.rd_btn_android_adb.text()
+        connect_mod = self.ui_info.rd_btn_windows_mod.text()  # 连接方式，仅Windows
         target_path_mode = str(self.ui_info.select_target_path_mode_combobox.currentText())  # 待匹配模板图片所在文件夹
         process_num = None  # 游戏单开还是多开
         handle_title = str(self.ui_info.show_handle_title.text())  # 待匹配窗体标题名称
@@ -208,7 +204,7 @@ class MatchingThread(QtCore.QThread):
         # 生成随机点击模型，其中info[3]是随机偏移像素值，这里作为点击模型的坐标范围，
         # 如：偏移50，则模型的坐标范围为[(-50,50),(-50,50)]的正态分布数组
         click_mod1 = ClickModSet.create_click_mod(info[3])  # 精确模型，用于关键图片偏移，偏移量可设置
-        pic_json_zoom = random.randint(other_setting[16], other_setting[16] + 20)  # 为大模型设置随机偏移量，使每次运行的结果呈现一定波动
+        pic_json_zoom = random.randint(other_setting[14], other_setting[14] + 20)  # 为大模型设置随机偏移量，使每次运行的结果呈现一定波动
         click_mod2 = ClickModSet.create_click_mod(pic_json_zoom)  # 大模型，用于空白位置偏移点击
         if debug_status:
             print(f"<br>偏移模型获取成功！")
@@ -275,7 +271,7 @@ class MatchingThread(QtCore.QThread):
                 success_target_list.insert(0, match_target_name)  # 插入最新的匹配成功的图片名称在数组头部
                 success_target_list.pop()  # 移除数组尾部最老的匹配成功的图片名称
 
-                if match_status and other_setting[14]:  # 如果匹配成功且开启5次匹配停止脚本的配置
+                if match_status and other_setting[12]:  # 如果匹配成功且开启5次匹配停止脚本的配置
                     repeat = repeat_tolerance-len(set(success_target_list))
                     print("<br> 匹配重复次数",repeat) # 如果数组中所有元素都相同，则意味着连续5次匹配到了同一个目标，触发脚本终止
                     if repeat == 5:  
@@ -341,7 +337,7 @@ class MatchingThread(QtCore.QThread):
                         print("<br>", e)
 
                 # 记录点击日志(如果匹配成功)
-                if other_setting[15] and match_status:
+                if other_setting[13] and match_status:
                     if click_pos:
                         today = time.strftime('%y%m%d', time.localtime(time.time()))
                         match_time = time.strftime('%y-%m-%d %H:%M:%S', time.localtime(match_end_time))
@@ -397,11 +393,11 @@ class MatchingThread(QtCore.QThread):
                     else:
                         click_frequency = [match_end_time, 0, 0]  # 如果超过10分钟，则初始化时间以及频次
 
-                    if click_frequency[2] > int(other_setting[17][0]):  # 如果10分钟匹配频次超过N次，则等待
+                    if click_frequency[2] > int(other_setting[15][0]):  # 如果10分钟匹配频次超过N次，则等待
                         print(
-                            f"<br>当前10分钟内匹配超过{other_setting[17][0]}次，接下来每次匹配成功后将强制额外等待{other_setting[17][1]}秒")
-                        for t in range(int(other_setting[17][1])):
-                            print(f"<br>为防止异常，[ {int(other_setting[17][1]) - t} ] 秒后继续……")
+                            f"<br>当前10分钟内匹配超过{other_setting[15][0]}次，接下来每次匹配成功后将强制额外等待{other_setting[15][1]}秒")
+                        for t in range(int(other_setting[15][1])):
+                            print(f"<br>为防止异常，[ {int(other_setting[15][1]) - t} ] 秒后继续……")
                             sleep(1)
                     if debug_status:
                         print(f"<br>随机等待算法运行成功！")
