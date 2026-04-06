@@ -133,26 +133,6 @@ class DoClick:
             return None
 
     @staticmethod
-    def get_p_pos_4grid(click_mod, width, height, pos):
-        """获取模型中的偏移坐标（4宫格）"""
-        # 从原始模型中抽取一个坐标，根据在窗口中的相对位置，进行旋转
-        p_pos = ClickModSet.choice_mod_pos(click_mod)
-        if pos[0] < width * 0.618 and pos[1] < height * 0.618:
-            # 如果需要点击的位置位于窗口左上，则坐标顺时针旋转180度
-            px, py = ClickModSet.pos_rotate(p_pos, 180)
-        elif pos[0] < width * 0.618 and pos[1] > height * 0.618:
-            # 如果需要点击的位置位于窗口左下，则坐标顺时针旋转90度
-            px, py = ClickModSet.pos_rotate(p_pos, 90)
-        elif pos[0] > width * 0.618 and pos[1] < height * 0.618:
-            # 如果需要点击的位置位于窗口右上，则坐标顺时针旋转270度
-            px, py = ClickModSet.pos_rotate(p_pos, 270)
-        else:
-            # 如果需要点击的位置位于窗口右上或其他情况，则坐标不变
-            px, py = p_pos
-
-        return px, py
-    
-    @staticmethod
     def get_p_pos(click_mod, width, height, pos):
         """获取模型中的偏移坐标（九宫格）"""
 

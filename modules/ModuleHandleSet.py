@@ -4,14 +4,12 @@
 # @MIT License Copyright (c) 2022 ACE
 
 import winsound
-from os import system
-from re import search
 from os.path import abspath, dirname
 from time import sleep
 
 from win32api import OpenProcess
 from win32con import PROCESS_ALL_ACCESS
-from win32gui import GetWindowText, FindWindow, FindWindowEx, GetWindowRect, GetForegroundWindow
+from win32gui import GetWindowText, FindWindow, GetWindowRect, GetForegroundWindow
 from win32process import NORMAL_PRIORITY_CLASS, REALTIME_PRIORITY_CLASS, SetPriorityClass, IDLE_PRIORITY_CLASS, \
     HIGH_PRIORITY_CLASS, GetWindowThreadProcessId, BELOW_NORMAL_PRIORITY_CLASS, ABOVE_NORMAL_PRIORITY_CLASS
 
@@ -33,19 +31,11 @@ class HandleSet:
         """通过句柄标题获取句柄编号"""
         # 如果编号不为0或者标题为空，说明是设置的多开，此时直接校验编号即可
         if self.handle_num != 0 or self.handle_title == '':
-            if search("雷电模拟器", self.get_handle_title(self.handle_num)):
-                self.handle_num = FindWindowEx(self.handle_num, None, None, "TheRender")  # 兼容雷电模拟器后台点击
-                return None if self.handle_num == 0 else self.handle_num
-            else:
-                return self.handle_num
+            return self.handle_num
         else:
             # 其他情况，说明设置的单开，此时需要通过标题名称来获取编号，再对编号进行校验
             self.handle_num = FindWindow(None, self.handle_title)  # 搜索句柄标题，获取句柄编号
-            if search("雷电模拟器", self.handle_title):
-                self.handle_num = FindWindowEx(self.handle_num, None, None, "TheRender")  # 兼容雷电模拟器后台点击
-                return None if self.handle_num == 0 else self.handle_num
-            else:
-                return None if self.handle_num == 0 else self.handle_num
+            return None if self.handle_num == 0 else self.handle_num
 
     @staticmethod
     def get_handle_title(handle_num=None):
@@ -55,11 +45,6 @@ class HandleSet:
         :returns: 句柄标题
         """
         return None if handle_num is None or handle_num == 0 or handle_num == '' else GetWindowText(handle_num)
-        # if handle_num is None or handle_num == 0 or handle_num == '':
-        #     return None
-        # else:
-        #     handle_title = GetWindowText(handle_num)  # 获取句柄标题
-        #     return handle_title
 
     @property
     def get_handle_pid(self):
@@ -74,11 +59,6 @@ class HandleSet:
         :returns: 坐标，左上角（x1，y1），右下角（x2，y2）
         """
         return None if self.get_handle_num is None else GetWindowRect(self.get_handle_num)
-        # if self.get_handle_num is None:
-        #     return None
-        # else:
-        #     self.handle_pos = GetWindowRect(self.get_handle_num)
-        #     return self.handle_pos
 
     def handle_is_active(self, process_num):
         """检测句柄是否停止"""
@@ -96,10 +76,6 @@ class HandleSet:
                 return False
             else:
                 return True
-
-    def set_priority_bk(self):
-        """尝试用自带的wmic设置优先级，但，已被弃用"""
-        system("wmic process where name=\"onmyoji.exe\" CALL setpriority 128")
 
     def set_priority(self, priority=4):
         """

@@ -33,24 +33,23 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setupUi(self)  # 继承UI类，下面进行信号与槽的绑定和修改
 
         # 使用配置文件参数
-        self.connect_mod_value = ui_info[0]
-        self.target_path_mode_value = ui_info[1]
-        self.handle_title_value = ui_info[2]
-        self.click_deviation_value = ui_info[3]
-        self.interval_seconds_value = ui_info[4]
-        self.loop_min_value = ui_info[5]
-        self.img_compress_val_value = ui_info[6]
-        self.match_method_value = ui_info[7]
-        self.run_mode_value = ui_info[8]
-        self.custom_target_path_value = ui_info[9]
-        self.process_num_value = ui_info[10]
-        self.handle_num_value = ui_info[11]
-        self.if_end_value = ui_info[12]
-        self.debug_status_value = ui_info[13]
-        self.set_priority_status_value = ui_info[14]
-        self.interval_seconds_value_max = ui_info[15]
-        self.screen_scale_rate_value = ui_info[16]
-        self.times_mode = ui_info[17]
+        self.target_path_mode_value = ui_info[0]
+        self.handle_title_value = ui_info[1]
+        self.click_deviation_value = ui_info[2]
+        self.interval_seconds_value = ui_info[3]
+        self.loop_min_value = ui_info[4]
+        self.img_compress_val_value = ui_info[5]
+        self.match_method_value = ui_info[6]
+        self.run_mode_value = ui_info[7]
+        self.custom_target_path_value = ui_info[8]
+        self.process_num_value = ui_info[9]
+        self.handle_num_value = ui_info[10]
+        self.if_end_value = ui_info[11]
+        self.debug_status_value = ui_info[12]
+        self.set_priority_status_value = ui_info[13]
+        self.interval_seconds_value_max = ui_info[14]
+        self.screen_scale_rate_value = ui_info[15]
+        self.times_mode = ui_info[16]
 
         # 控制台消息捕获并输出到运行日志
         sys.stdout = EmitStr(text_writ=self.output_write)  # 输出结果重定向
@@ -125,9 +124,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.process_num_more.setChecked(True)
             self.show_handle_num.show()
             self.show_handle_title.hide()
-        if self.connect_mod_value == 'Windows程序窗体':
-            self.rd_btn_windows_mod.setChecked(True)
-
         if self.times_mode == "按分钟计算":
             self.run_by_min.setChecked(True)
         else:
@@ -311,13 +307,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.runmod_compatibility.setEnabled(bool_val)
         self.debug.setEnabled(bool_val)
         self.select_target_path_mode_combobox.setEnabled(bool_val)
-        if self.rd_btn_windows_mod.isChecked():
-            self.show_handle_title.setEnabled(bool_val)
-            self.show_handle_num.setEnabled(bool_val)
-            self.btn_select_handle.setEnabled(bool_val)
-            self.process_num_one.setEnabled(bool_val)
-            self.process_num_more.setEnabled(bool_val)
-        self.rd_btn_windows_mod.setEnabled(bool_val)
+        self.show_handle_title.setEnabled(bool_val)
+        self.show_handle_num.setEnabled(bool_val)
+        self.btn_select_handle.setEnabled(bool_val)
+        self.process_num_one.setEnabled(bool_val)
+        self.process_num_more.setEnabled(bool_val)
         self.show_target_path.setEnabled(bool_val)
         self.select_targetpic_path_btn.setEnabled(bool_val)
         self.interval_seconds.setEnabled(bool_val)

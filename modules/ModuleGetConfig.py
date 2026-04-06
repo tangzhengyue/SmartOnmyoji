@@ -22,7 +22,6 @@ class ReadConfigFile:
         config_ini.read(self.file_path, encoding="utf-8-sig")  # 读配置文件
 
         # 读取confing.ini的参数
-        connect_mod = config_ini.get('ui_info', 'connect_mod')
         target_path_mode = config_ini.get('ui_info', 'target_path_mode')
         handle_title = config_ini.get('ui_info', 'handle_title')
         click_deviation = int(config_ini.get('ui_info', 'click_deviation'))
@@ -41,7 +40,7 @@ class ReadConfigFile:
         screen_scale_rate = config_ini.get('other_setting', 'screen_scale_rate')
         times_mode = config_ini.get('ui_info', 'times_mode')
 
-        return [connect_mod, target_path_mode, handle_title, click_deviation, interval_seconds, loop_min,
+        return [target_path_mode, handle_title, click_deviation, interval_seconds, loop_min,
                 img_compress_val, match_method, run_mode, custom_target_path, process_num, handle_num, if_end,
                 debug_status, set_priority_status, interval_seconds_max, screen_scale_rate, times_mode]
 
@@ -90,8 +89,6 @@ class ReadConfigFile:
         play_sound_status = self.str_to_bool(config_ini.get('other_setting', 'play_sound_status'))
         ex_click = config_ini.get('other_setting', 'ex_click')
         screen_scale_rate = config_ini.get('other_setting', 'screen_scale_rate')
-        if_match_then_stop = self.str_to_bool(config_ini.get('other_setting', 'if_match_then_stop'))
-        stop_target_img_name = config_ini.get('other_setting', 'stop_target_img_name')
         if_match_5times_stop = self.str_to_bool(config_ini.get('other_setting', 'if_match_5times_stop'))
         save_click_log = self.str_to_bool(config_ini.get('other_setting', 'save_click_log'))
         target_deviation = int(config_ini.get('other_setting', 'target_deviation'))
@@ -100,7 +97,7 @@ class ReadConfigFile:
         other_setting = [save_ui_info_in_config, playtime_warming_status, success_times_warming_status,
                          success_times_warming_times, success_times_warming_waiting_seconds.split(","),
                          debug_status_show_pics, set_priority_num, play_sound_status,
-                         ex_click, screen_scale_rate, if_match_then_stop, stop_target_img_name.split(","),
+                         ex_click, screen_scale_rate,
                          if_match_5times_stop, save_click_log, target_deviation, success_match_then_wait.split(",")]
 
         return other_setting
@@ -119,24 +116,23 @@ class ReadConfigFile:
         config_ini.read(self.file_path, encoding="utf-8-sig")  # 读配置文件
 
         # 写入confing.ini的参数
-        config_ini.set("ui_info", "connect_mod", info[0])
-        config_ini.set("ui_info", "target_path_mode", info[1])
-        config_ini.set("ui_info", "handle_title", info[2])
-        config_ini.set("ui_info", "click_deviation", info[3])
-        config_ini.set("ui_info", "interval_seconds", info[4])
-        config_ini.set("ui_info", "loop_min", info[5])
-        config_ini.set("ui_info", "img_compress_val", info[6])
-        config_ini.set("ui_info", "match_method", info[7])
-        config_ini.set("ui_info", "run_mode", info[8])
-        config_ini.set("ui_info", "custom_target_path", info[9])
-        config_ini.set("ui_info", "process_num", info[10])
-        config_ini.set("ui_info", "handle_num", info[11])
-        config_ini.set("ui_info", "if_end", info[12])
-        config_ini.set("ui_info", "debug_status", info[13])
-        config_ini.set("ui_info", "set_priority_status", info[14])
-        config_ini.set("ui_info", "interval_seconds_max", info[15])
-        config_ini.set("other_setting", "screen_scale_rate", info[16])
-        config_ini.set("ui_info", "times_mode", info[17])
+        config_ini.set("ui_info", "target_path_mode", info[0])
+        config_ini.set("ui_info", "handle_title", info[1])
+        config_ini.set("ui_info", "click_deviation", info[2])
+        config_ini.set("ui_info", "interval_seconds", info[3])
+        config_ini.set("ui_info", "loop_min", info[4])
+        config_ini.set("ui_info", "img_compress_val", info[5])
+        config_ini.set("ui_info", "match_method", info[6])
+        config_ini.set("ui_info", "run_mode", info[7])
+        config_ini.set("ui_info", "custom_target_path", info[8])
+        config_ini.set("ui_info", "process_num", info[9])
+        config_ini.set("ui_info", "handle_num", info[10])
+        config_ini.set("ui_info", "if_end", info[11])
+        config_ini.set("ui_info", "debug_status", info[12])
+        config_ini.set("ui_info", "set_priority_status", info[13])
+        config_ini.set("ui_info", "interval_seconds_max", info[14])
+        config_ini.set("other_setting", "screen_scale_rate", info[15])
+        config_ini.set("ui_info", "times_mode", info[16])
 
         # 写入文件
         config_ini.write(open(self.file_path, 'w', encoding="utf-8"))

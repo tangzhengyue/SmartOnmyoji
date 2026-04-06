@@ -89,11 +89,10 @@ class MatchingThread(QtCore.QThread):
         :param info:界面配置参数
         :return: 无
         """
-        if_end = info[12]
-        handle_title = info[2]
-        handle_num_list = info[11]
-        process_num = info[10]
-        connect_mod = info[0]
+        if_end = info[11]
+        handle_title = info[1]
+        handle_num_list = info[10]
+        process_num = info[9]
 
         if if_end == '电脑关机':
             print("<br>已完成，60秒后自动关机！")
@@ -102,7 +101,7 @@ class MatchingThread(QtCore.QThread):
             print("<br>已完成！")
         elif if_end == '关闭匹配目标窗体':
             print("<br>已完成，正在退出程序！")
-            if process_num == '多开' and connect_mod == 'Windows程序窗体':
+            if process_num == '多开':
                 handle_num_list = str(handle_num_list).split(",")
                 for handle_num_loop in range(len(handle_num_list)):
                     PostMessage(handle_num_list[handle_num_loop], WM_CLOSE, 0, 0)  # 关闭程序
@@ -127,7 +126,6 @@ class MatchingThread(QtCore.QThread):
         interval_seconds = float(self.ui_info.interval_seconds.value())  # 间隔时间，下限
         interval_seconds_max = float(self.ui_info.interval_seconds_max.value())  # 间隔时间，上限
         click_deviation = int(self.ui_info.click_deviation.value())  # 点击偏移范围
-        connect_mod = self.ui_info.rd_btn_windows_mod.text()  # 连接方式，仅Windows
         target_path_mode = str(self.ui_info.select_target_path_mode_combobox.currentText())  # 待匹配模板图片所在文件夹
         process_num = None  # 游戏单开还是多开
         handle_title = str(self.ui_info.show_handle_title.text())  # 待匹配窗体标题名称
@@ -149,7 +147,7 @@ class MatchingThread(QtCore.QThread):
             run_mode = self.ui_info.runmod_nomal.text()
         elif self.ui_info.runmod_compatibility.isChecked():
             run_mode = self.ui_info.runmod_compatibility.text()
-        if_end = str(self.ui_info.if_end_do.currentText())  # 脚本运行正常结束后，执行的操作，未生效
+        if_end = str(self.ui_info.if_end_do.currentText())  # 脚本运行正常结束后，执行的操作
         debug_status = self.ui_info.debug.isChecked()  # 是否启用调试
         custom_target_path = ''
         if self.ui_info.select_target_path_mode_combobox.currentText() == '自定义':
@@ -157,7 +155,7 @@ class MatchingThread(QtCore.QThread):
         set_priority_status = self.ui_info.set_priority.isChecked()  # 是否启用调试
         screen_scale_rate = float(self.ui_info.screen_rate.value())  # 屏幕压缩分辨率
 
-        info = [connect_mod, target_path_mode, handle_title, click_deviation, interval_seconds, loop_min,
+        info = [target_path_mode, handle_title, click_deviation, interval_seconds, loop_min,
                 img_compress_val, match_method, run_mode, custom_target_path, process_num, handle_num, if_end,
                 debug_status, set_priority_status, interval_seconds_max, screen_scale_rate, times_mode]
 
@@ -167,7 +165,7 @@ class MatchingThread(QtCore.QThread):
         if other_setting[0] is True:
             set_config.writ_config_ui_info(info)
 
-        return connect_mod, target_path_mode, handle_title, click_deviation, interval_seconds, loop_min, img_compress_val, match_method, run_mode, custom_target_path, process_num, handle_num, if_end, debug_status, set_priority_status, interval_seconds_max, screen_scale_rate, times_mode
+        return target_path_mode, handle_title, click_deviation, interval_seconds, loop_min, img_compress_val, match_method, run_mode, custom_target_path, process_num, handle_num, if_end, debug_status, set_priority_status, interval_seconds_max, screen_scale_rate, times_mode
 
     # 运行(入口)
     def run(self):
@@ -181,30 +179,30 @@ class MatchingThread(QtCore.QThread):
         # print("线程开始")
         info = self.get_ui_info()
 
-        if info[0] == "Windows程序窗体" and info[10] == "多开" and info[11] == '0':  # 检测如果选择多开，是否已经获取句柄编号
+        if info[9] == "多开" and info[10] == '0':  # 检测如果选择多开，是否已经获取句柄编号
             # 多开使用循环，每个循环针对一个窗口
             print("<br>请点击【选择窗体】获取目标窗体的句柄编号，支持选择多个游戏窗口！")
             self.finished_signal.emit(True)
             return
 
-        run_times_mode = info[17]
-        debug_status = info[13]
-        set_priority_status = info[14]
-        interval_seconds = [info[4], info[15]]
-        start_match = StartMatch(info[:12])
-        loop_seconds = int(info[5] * 60)
+        run_times_mode = info[16]
+        debug_status = info[12]
+        set_priority_status = info[13]
+        interval_seconds = [info[3], info[14]]
+        start_match = StartMatch(info[:11])
+        loop_seconds = int(info[4] * 60)
         start_time = time.mktime(time.localtime())  # 开始时间的时间戳
         if run_times_mode == "按分钟计算":
             end_time = start_time + loop_seconds  # 结束时间的时间戳
             run_rounds = 9999999999
         else:
             end_time = 9999999999
-            run_rounds = int(info[5])
+            run_rounds = int(info[4])
 
         # 生成随机点击模型，其中info[3]是随机偏移像素值，这里作为点击模型的坐标范围，
         # 如：偏移50，则模型的坐标范围为[(-50,50),(-50,50)]的正态分布数组
-        click_mod1 = ClickModSet.create_click_mod(info[3])  # 精确模型，用于关键图片偏移，偏移量可设置
-        pic_json_zoom = random.randint(other_setting[14], other_setting[14] + 20)  # 为大模型设置随机偏移量，使每次运行的结果呈现一定波动
+        click_mod1 = ClickModSet.create_click_mod(info[2])  # 精确模型，用于关键图片偏移，偏移量可设置
+        pic_json_zoom = random.randint(other_setting[12], other_setting[12] + 20)  # 为大模型设置随机偏移量，使每次运行的结果呈现一定波动
         click_mod2 = ClickModSet.create_click_mod(pic_json_zoom)  # 大模型，用于空白位置偏移点击
         if debug_status:
             print(f"<br>偏移模型获取成功！")
@@ -271,7 +269,7 @@ class MatchingThread(QtCore.QThread):
                 success_target_list.insert(0, match_target_name)  # 插入最新的匹配成功的图片名称在数组头部
                 success_target_list.pop()  # 移除数组尾部最老的匹配成功的图片名称
 
-                if match_status and other_setting[12]:  # 如果匹配成功且开启5次匹配停止脚本的配置
+                if match_status and other_setting[10]:  # 如果匹配成功且开启5次匹配停止脚本的配置
                     repeat = repeat_tolerance-len(set(success_target_list))
                     print("<br> 匹配重复次数",repeat) # 如果数组中所有元素都相同，则意味着连续5次匹配到了同一个目标，触发脚本终止
                     if repeat == 5:  
@@ -337,7 +335,7 @@ class MatchingThread(QtCore.QThread):
                         print("<br>", e)
 
                 # 记录点击日志(如果匹配成功)
-                if other_setting[13] and match_status:
+                if other_setting[11] and match_status:
                     if click_pos:
                         today = time.strftime('%y%m%d', time.localtime(time.time()))
                         match_time = time.strftime('%y-%m-%d %H:%M:%S', time.localtime(match_end_time))
@@ -393,11 +391,11 @@ class MatchingThread(QtCore.QThread):
                     else:
                         click_frequency = [match_end_time, 0, 0]  # 如果超过10分钟，则初始化时间以及频次
 
-                    if click_frequency[2] > int(other_setting[15][0]):  # 如果10分钟匹配频次超过N次，则等待
+                    if click_frequency[2] > int(other_setting[13][0]):  # 如果10分钟匹配频次超过N次，则等待
                         print(
-                            f"<br>当前10分钟内匹配超过{other_setting[15][0]}次，接下来每次匹配成功后将强制额外等待{other_setting[15][1]}秒")
-                        for t in range(int(other_setting[15][1])):
-                            print(f"<br>为防止异常，[ {int(other_setting[15][1]) - t} ] 秒后继续……")
+                            f"<br>当前10分钟内匹配超过{other_setting[13][0]}次，接下来每次匹配成功后将强制额外等待{other_setting[13][1]}秒")
+                        for t in range(int(other_setting[13][1])):
+                            print(f"<br>为防止异常，[ {int(other_setting[13][1]) - t} ] 秒后继续……")
                             sleep(1)
                     if debug_status:
                         print(f"<br>随机等待算法运行成功！")

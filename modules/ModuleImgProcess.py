@@ -3,7 +3,6 @@
 # @Version : Python3.7.6
 # @MIT License Copyright (c) 2022 ACE
 
-from os.path import abspath, dirname
 # from cv2 import cv2
 import cv2
 
@@ -13,15 +12,6 @@ class ImgProcess:
 
     def __init__(self):
         super(ImgProcess, self).__init__()
-
-    @staticmethod
-    def save_img(img, img_path_name=r'\screen_img\screen_pic.jpg'):
-        """保存内存中cv2格式的图片为本地文件"""
-        if img is None:
-            print("<br>未获取到需要保存的图片！")
-        else:
-            file_path = abspath(dirname(__file__)) + img_path_name  # 截图的存储位置，程序路径里面
-            cv2.imwrite(file_path, img, [int(cv2.IMWRITE_JPEG_QUALITY), 20])  # 保存截图 质量（0-100）
 
     @staticmethod
     def show_img(img):

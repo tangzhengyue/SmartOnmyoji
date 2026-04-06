@@ -7,7 +7,6 @@ import os
 import random
 from gc import collect
 from os.path import abspath, dirname
-from re import search
 from time import sleep, localtime, strftime
 
 from win32gui import GetWindowText
@@ -38,7 +37,7 @@ class StartMatch:
 
     def __init__(self, gui_info):
         super(StartMatch, self).__init__()
-        self.connect_mod, self.target_modname, self.hwd_title, self.click_deviation, self.interval_seconds, self.loop_min, self.compress_val, self.match_method, self.scr_and_click_method, self.custom_target_path, self.process_num, self.handle_num = gui_info
+        self.target_modname, self.hwd_title, self.click_deviation, self.interval_seconds, self.loop_min, self.compress_val, self.match_method, self.scr_and_click_method, self.custom_target_path, self.process_num, self.handle_num = gui_info
         rc = ReadConfigFile()
         self.other_setting = rc.read_config_other_setting()
 
@@ -88,11 +87,10 @@ class StartMatch:
 
         return target_info
 
-    def matching(self, connect_mod, handle_num, scr_and_click_method, screen_method, debug_status, match_method,
+    def matching(self, handle_num, scr_and_click_method, screen_method, debug_status, match_method,
                  compress_val, target_info, click_mod1, click_mod2, run_status, match_status, stop_status, flag_mark):
         """
         核心代码~
-        :param connect_mod: 运行方式，windows
         :param handle_num: windows句柄编号
         :param scr_and_click_method: 是否兼容模式运行，两种方法不同
         :param screen_method: 截图方法
@@ -220,39 +218,20 @@ class StartMatch:
                 if img_flag == "mark":
                     click_mod = ClickModSet.create_click_mod(20, size=(200, 2))  # 构造正态分布模型，只针对标记场景，所以仅小范围偏移
 
-                if search("雷电模拟器", self.hwd_title):
-                    # 针对 雷电模拟器，特殊处理
-                    handle_set = HandleSet(self.hwd_title, handle_num)
-                    handle_num = handle_set.get_handle_num
-                    doclick = DoClick(pos, click_mod, handle_num)
+                # 针对 windows 程序和模拟器
+                handle_set = HandleSet(self.hwd_title, handle_num)
+                handle_num = handle_set.get_handle_num
+                doclick = DoClick(pos, click_mod, handle_num)
+
+                # 如果部分窗口不能点击、截图出来是黑屏，可以使用兼容模式
+                if scr_and_click_method == '正常-可后台':
+                    click_status, click_pos = doclick.windows_click()
                     if debug_status:
-                        print(f"<br>雷电模拟器点击成功! ")
-
-                    # 如果部分窗口不能点击、截图出来是黑屏，可以使用兼容模式
-                    if scr_and_click_method == '正常-可后台':
-                        click_status, click_pos = doclick.windows_click()
-                        if debug_status:
-                            print(f"<br>正常模式点击成功! ")
-                    elif scr_and_click_method == '兼容-不可后台':
-                        click_status, click_pos = doclick.windows_click_bk()
-                        if debug_status:
-                            print(f"<br>兼容模式点击成功! ")
-
-                else:
-                    # 针对 windows 程序和模拟器
-                    handle_set = HandleSet(self.hwd_title, handle_num)
-                    handle_num = handle_set.get_handle_num
-                    doclick = DoClick(pos, click_mod, handle_num)
-
-                    # 如果部分窗口不能点击、截图出来是黑屏，可以使用兼容模式
-                    if scr_and_click_method == '正常-可后台':
-                        click_status, click_pos = doclick.windows_click()
-                        if debug_status:
-                            print(f"<br>Windows程序正常后台点击成功! ")
-                    elif scr_and_click_method == '兼容-不可后台':
-                        click_status, click_pos = doclick.windows_click_bk()
-                        if debug_status:
-                            print(f"<br>Windows程序兼容模式点击成功! ")
+                        print(f"<br>正常后台点击成功! ")
+                elif scr_and_click_method == '兼容-不可后台':
+                    click_status, click_pos = doclick.windows_click_bk()
+                    if debug_status:
+                        print(f"<br>兼容模式点击成功! ")
         else:
             print("<br>匹配失败！")
             match_status = False
@@ -273,7 +252,6 @@ class StartMatch:
         stop_status = False
         match_target_name = None
         click_pos = []
-        connect_mod = self.connect_mod
         scr_and_click_method = self.scr_and_click_method
         match_method = self.match_method
         compress_val = float(self.compress_val)
@@ -301,7 +279,7 @@ class StartMatch:
                 handle_width = handle_set.get_handle_pos[2] - handle_set.get_handle_pos[0]  # 右x - 左x 计算宽度
                 handle_height = handle_set.get_handle_pos[3] - handle_set.get_handle_pos[1]  # 下y - 上y 计算高度
                 screen_method = GetScreenCapture(handle_num, handle_width, handle_height)
-                results = self.matching(connect_mod, handle_num, scr_and_click_method, screen_method, debug_status,
+                results = self.matching(handle_num, scr_and_click_method, screen_method, debug_status,
                                         match_method, compress_val, target_info, click_mod1, click_mod2, run_status,
                                         match_status, stop_status, flag_mark)
                 run_status, match_status, stop_status, match_target_name, click_pos = results
@@ -321,12 +299,12 @@ class StartMatch:
             handle_height = handle_set.get_handle_pos[3] - handle_set.get_handle_pos[1]  # 下y - 上y 计算高度
             handle_num = handle_set.get_handle_num
             screen_method = GetScreenCapture(handle_num, handle_width, handle_height)
-            results = self.matching(connect_mod, handle_num, scr_and_click_method, screen_method, debug_status,
+            results = self.matching(handle_num, scr_and_click_method, screen_method, debug_status,
                                     match_method, compress_val, target_info, click_mod1, click_mod2,
                                     run_status, match_status, stop_status, flag_mark)
             run_status, match_status, stop_status, match_target_name, click_pos = results
 
-        del target_info, screen_method, connect_mod, scr_and_click_method, match_method, compress_val, click_mod1, click_mod2, handle_num_list  # 删除变量
+        del target_info, screen_method, scr_and_click_method, match_method, compress_val, click_mod1, click_mod2, handle_num_list  # 删除变量
         collect()  # 清理内存
 
         return run_status, match_status, stop_status, match_target_name, click_pos
